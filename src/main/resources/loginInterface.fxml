@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.*?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="340.0" prefWidth="729.0" style="-fx-background-color: #20120F;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="JAVA_MUSIC.LoginRegistration">
+    <children>
+        <Pane prefHeight="83.0" prefWidth="729.0" style="-fx-background-color: #212121; -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.6) , 5, 0.0 , 0 , 3 );">
+            <children>
+                <Label alignment="CENTER" layoutX="263.0" layoutY="15.0" prefHeight="53.0" prefWidth="203.0" text="Sign In" textFill="#d0f0ff">
+                    <font>
+                        <Font name="Arial Unicode MS" size="36.0" />
+                    </font>
+                </Label>
+            </children>
+        </Pane>
+        <Pane layoutX="6.0" layoutY="83.0" prefHeight="258.0" prefWidth="729.0">
+            <children>
+                <TextField fx:id="userTextField" layoutX="451.0" layoutY="30.0" prefHeight="36.0" prefWidth="197.0" promptText="Enter your username">
+               <font>
+                  <Font size="15.0" />
+               </font></TextField>
+                <Label layoutX="309.0" layoutY="30.0" prefHeight="36.0" prefWidth="125.0" text="Username/Email :" textFill="WHITE">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+                <Label layoutX="350.0" layoutY="102.0" prefHeight="27.0" prefWidth="103.0" text="Password :" textFill="WHITE">
+                    <font>
+                        <Font size="15.0" />
+                    </font>
+                </Label>
+                <PasswordField fx:id="passwordTextField" layoutX="451.0" layoutY="97.0" prefHeight="36.0" prefWidth="197.0" promptText="Enter your password">
+               <font>
+                  <Font size="15.0" />
+               </font></PasswordField>
+                <Button fx:id="SignInButton" layoutX="486.0" layoutY="174.0" mnemonicParsing="false" onAction="#signInButton" prefHeight="36.0" prefWidth="112.0" style="-fx-background-color: linear-gradient(#00605B, #080808); -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );;" text="Sign In as User" textFill="WHITE">
+               <font>
+                  <Font size="14.0" />
+               </font></Button>
+            <Button alignment="CENTER" layoutX="62.0" layoutY="180.0" mnemonicParsing="false" onAction="#user_register" prefHeight="30.0" prefWidth="91.0" style="-fx-background-color: linear-gradient(#00605B, #080808); -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="SignUp" textFill="#f8f8f8">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Button>
+            <Label layoutX="36.0" layoutY="133.0" prefHeight="36.0" prefWidth="172.0" text="Click here to sign up" textFill="WHITE" wrapText="true">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            </children>
+        </Pane>
+    </children>
+</AnchorPane>

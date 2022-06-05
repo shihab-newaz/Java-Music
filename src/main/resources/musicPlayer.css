@@ -1,0 +1,35 @@
+#pane{
+    -fx-background: #1f1e1e;
+    -fx-border-color: #742222;
+    -fx-border-width: 5;
+}
+#playButton{
+    -fx-background-color: White;
+}
+#playButton:hover{
+    -fx-background-color: #1cfa03;
+}
+#previousButton{
+    -fx-background-color: White;
+}
+#previousButton:hover{
+    -fx-background-color: red;
+}
+#resetButton{
+    -fx-background-color: White;
+}
+#resetButton:hover{
+    -fx-background-color: red;
+}
+#pauseButton{
+    -fx-background-color: White;
+}
+#pauseButton:hover{
+    -fx-background-color: red;
+}
+#nextButton{
+    -fx-background-color: White;
+}
+#nextButton:hover{
+    -fx-background-color: red;
+}

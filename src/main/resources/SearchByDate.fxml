@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="JAVA_MUSIC.SearchByDate">
+   <children>
+      <Button layoutX="80.0" layoutY="363.0" mnemonicParsing="false" onAction="#searchByDate" text="Search">
+         <font>
+            <Font size="15.0" />
+         </font>
+      </Button>
+      <DatePicker fx:id="datePicker" blendMode="ADD" layoutX="3.0" layoutY="186.0" prefHeight="109.0" prefWidth="221.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="376.0" />
+      <Label layoutX="4.0" layoutY="130.0" prefHeight="56.0" prefWidth="218.0" style="-fx-background-color: black;" text="Search For global trending songs by date" textFill="#dddddd" wrapText="true">
+         <font>
+            <Font size="15.0" />
+         </font>
+      </Label>
+      <ListView fx:id="songList" layoutX="229.0" layoutY="106.0" prefHeight="294.0" prefWidth="371.0" />
+      <Label alignment="CENTER" layoutX="190.0" prefHeight="56.0" prefWidth="264.0" style="-fx-background-color: cyan;" text="TRENDING SONGS" wrapText="true">
+         <font>
+            <Font size="28.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

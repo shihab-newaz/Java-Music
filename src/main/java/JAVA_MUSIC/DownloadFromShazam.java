@@ -4,7 +4,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -13,40 +15,67 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 
 public class DownloadFromShazam {
     @FXML
     public TextField songSearchText;
-    public URL fileURL;
+    public static final String APIKEY = "b15c0784e0msh02700e180ecefc5p19cc28jsn8a35d86e826f";
 
-    public void songDownload() throws IOException, InterruptedException, URISyntaxException {
-        String fileName = songSearchText.getText() + ".m4a";
-        String dirName = "I:\\Project\\Download\\src\\main\\resources\\Music\\";
+    public void callShazamAPI() throws IOException, InterruptedException, URISyntaxException {
         String song = songSearchText.getText();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://shazam.p.rapidapi.com/search?term=" + song + "&locale=en-US&offset=0&limit=5"))
-                .header("x-rapidapi-key", "b15c0784e0msh02700e180ecefc5p19cc28jsn8a35d86e826f")
+                .header("x-rapidapi-key", APIKEY)
                 .header("x-rapidapi-host", "shazam.p.rapidapi.com")
                 .method("GET", HttpRequest.BodyPublishers.noBody())
                 .build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-        ArrayList<String> arrayList = new ArrayList<>();
-        String[] a1 = response.body().split("[,:]");
+        songDownload(response);
+        System.out.println(response.body());
 
-        for (int i = 0; i < a1.length; i++) {
-            if (a1[i].equals("\"uri\"")) {
-                arrayList.add(a1[i + 2]);
+    }
+    public void songDownload(  HttpResponse<String> response) throws URISyntaxException, IOException {
+        Gson gson = new Gson();
+        JsonObject jsonObject = gson.fromJson(response.body(), JsonObject.class);
+        JsonObject tracks = jsonObject.getAsJsonObject("tracks");
+        JsonArray hits = tracks.getAsJsonArray("hits");
+
+        // Iterate through hits array
+        for (JsonElement hitElement : hits) {
+            JsonObject hit = hitElement.getAsJsonObject();
+            JsonObject track = hit.getAsJsonObject("track");
+            JsonObject hub = track.getAsJsonObject("hub");
+            String title = track.get("title").getAsString();
+            JsonObject share = track.getAsJsonObject("share");
+            String imageString = share.get("image").getAsString();
+            URI imageURI=new URI(imageString);
+            URL imageURL = imageURI.toURL();
+            JsonArray actions = hub.getAsJsonArray("actions");
+
+            // Iterate through actions to find the one with type "uri"
+            for (JsonElement actionElement : actions) {
+                JsonObject action = actionElement.getAsJsonObject();
+                if (action.get("type").getAsString().equals("uri")) {
+                    String uriString = action.get("uri").getAsString();
+                    URI uri = new URI(uriString);
+                    URL fileURL = uri.toURL();
+                    System.out.println("URI: " + uri);
+                    String musicDirName = "Music_Downloads" + File.separator;
+                    String imageDirName ="Image_Downloads" + File.separator;
+                    String fileName= title + ".m4a";
+                    String imageName= title + ".jpg";
+                    downloadFile(fileURL, musicDirName + fileName);
+                    downloadFile(imageURL, imageDirName + imageName);
+                    return;
+                }
             }
         }
-
-        String file_Url_string = "https:" + arrayList.get(1);
-        StringBuffer stringBuffer = new StringBuffer(file_Url_string);
-        stringBuffer.delete(file_Url_string.length() - 3, file_Url_string.length());
-
-        URI uri = new URI(stringBuffer.toString());
-        fileURL = uri.toURL();
-        downloadFile(fileURL, dirName + fileName);
     }
 
     public static void downloadFile(URL url, String fileName) throws IOException {
@@ -54,8 +83,11 @@ public class DownloadFromShazam {
     }
 
     public void songSearch(ActionEvent actionEvent) throws IOException, URISyntaxException, InterruptedException {
-        songDownload();
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.show();
+        callShazamAPI();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Download Complete");
+        alert.setHeaderText(null);
+        alert.setContentText("The file has been downloaded successfully.");
+        alert.showAndWait();
     }
 }

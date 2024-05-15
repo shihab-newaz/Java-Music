@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class LoginRegistration {
-    public static final String MONGO_CONNECTION = "mongodb+srv://shihabnewaz:password321@cluster0.96q0n.mongodb.net/UserDATA?retryWrites=true&w=majority";
+    public static final String MONGO_CONNECTION = "mongodb+srv://shihabnewaz563:ACunity65@data.4wtqusn.mongodb.net/?retryWrites=true&w=majority&appName=Data";
     @FXML
     public TextField fullName;
     @FXML
@@ -70,6 +70,10 @@ public class LoginRegistration {
             Stage stage3 = new Stage();
             Parent parent = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/MainPlayerUI.fxml")));
             stage3.setScene(new Scene(parent));
+            stage3.setMinWidth(1024);
+            stage3.setMinHeight(250);
+            stage3.setMaxWidth(1200);
+            stage3.setMaxHeight(350);
             stage3.show();
             correct = true;
             Main.stage1.close();

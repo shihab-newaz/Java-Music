@@ -6,9 +6,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
@@ -21,6 +25,16 @@ import java.util.*;
 
 public class Main_Controller implements Initializable {
     private final int[] speedArray = {25, 50, 75, 100, 125, 150, 200};
+    public ImageView playerButton;
+    public Button nextButton;
+    public ImageView playButtons;
+    public Button previousButton;
+    public Button resetButton;
+    public ImageView player_Button;
+    public Button pauseButton;
+    public ImageView playerButtons;
+    public Button playButton;
+    public Button createPlaylist;
     @FXML
     private Label songLabel;
     @FXML
@@ -30,7 +44,9 @@ public class Main_Controller implements Initializable {
     @FXML
     private Slider volumeSlider;
     @FXML
-    private Media media;
+    private ImageView albumImageView;
+    @FXML
+    private AnchorPane pane;
 
     private MediaPlayer mediaPlayer;
     private ArrayList<File> songList;
@@ -44,18 +60,27 @@ public class Main_Controller implements Initializable {
         }
         speedComboBox.setOnAction(this::changeSpeed);
         volumeSlider.valueProperty().addListener((observableValue, number, t1) -> mediaPlayer.setVolume(volumeSlider.getValue() * 0.001));
+
+        speedComboBox.setLayoutX(pane.getWidth() - 528); // Adjust as needed
+        volumeSlider.setLayoutX(pane.getWidth() - 402); // Adjust as needed
+        seekSlider.prefWidthProperty().bind(pane.widthProperty().subtract(20)); // Adjust as needed
+        // Add listener for AnchorPane width changes
+        pane.widthProperty().addListener((obs, oldVal, newVal) -> {
+            // Adjust layout when width changes
+            speedComboBox.setLayoutX(newVal.doubleValue() - 528); // Adjust as needed
+            volumeSlider.setLayoutX(newVal.doubleValue() - 402); // Adjust as needed
+        });
+
     }
 
     public ArrayList<File> createPlaylist(ActionEvent actionEvent) throws IOException {
         songList = new ArrayList<>();
-        File directory = new File("I:\\Project\\Download\\src\\main\\resources\\Music");
+        File directory = new File("Music_Downloads");
         File[] files = directory.listFiles();
         if (files != null) {
             Collections.addAll(songList, files);
         }
-        media = new Media(songList.get(songNumber).toURI().toString());
-        mediaPlayer = new MediaPlayer(media);
-        songLabel.setText(songList.get(songNumber).getName());
+
         return songList;
     }
 
@@ -81,11 +106,15 @@ public class Main_Controller implements Initializable {
         } else {
             songNumber = 0;
         }
+        stopThenPlay();
+    }
+
+    private void stopThenPlay() {
         mediaPlayer.stop();
         if (running) {
             cancelTimer();
         }
-        media = new Media(songList.get(songNumber).toURI().toString());
+        Media media = new Media(songList.get(songNumber).toURI().toString());
         mediaPlayer = new MediaPlayer(media);
         songLabel.setText(songList.get(songNumber).getName());
         playMedia();
@@ -97,14 +126,7 @@ public class Main_Controller implements Initializable {
         } else {
             songNumber = songList.size() - 1;
         }
-        mediaPlayer.stop();
-        if (running) {
-            cancelTimer();
-        }
-        media = new Media(songList.get(songNumber).toURI().toString());
-        mediaPlayer = new MediaPlayer(media);
-        songLabel.setText(songList.get(songNumber).getName());
-        playMedia();
+        stopThenPlay();
     }
 
     public void changeSpeed(ActionEvent Event) {
@@ -139,17 +161,6 @@ public class Main_Controller implements Initializable {
         timer.cancel();
     }
 
-    public void loadDatabase(ActionEvent actionEvent) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/DB_UI.fxml"));
-        Stage stage3 = new Stage();
-        Parent root = loader.load();
-        DB_controller controller = loader.getController();
-        controller.listArtists();
-
-        stage3.setTitle("MUSIC DATABASE");
-        stage3.setScene(new Scene(root));
-        stage3.show();
-    }
 
     @FXML
     void TopChart(ActionEvent event) throws IOException {

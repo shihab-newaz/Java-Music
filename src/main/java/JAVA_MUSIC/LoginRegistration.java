@@ -3,6 +3,8 @@ package JAVA_MUSIC;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,12 +18,9 @@ import javafx.stage.Stage;
 import org.bson.Document;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class LoginRegistration {
-    public static final String MONGO_CONNECTION = "mongodb+srv://shihabnewaz563:ACunity65@data.4wtqusn.mongodb.net/?retryWrites=true&w=majority&appName=Data";
     @FXML
     public TextField fullName;
     @FXML
@@ -36,37 +35,52 @@ public class LoginRegistration {
     public PasswordField passwordTextField;
     @FXML
     public Button SignInButton;
-    MongoClient mongoClient = MongoClients.create(MONGO_CONNECTION);
-    MongoCollection<Document> USER_DATA = mongoClient.getDatabase("UserDATA").getCollection("registration");
-    List<Document> userData = USER_DATA.find().into(new ArrayList<>());
 
+    private static final String MONGO_CONNECTION = "mongodb+srv://shihabnewaz563:ACunity65@data.4wtqusn.mongodb.net/?retryWrites=true&w=majority&appName=Data";
+    private final MongoClient mongoClient = MongoClients.create(MONGO_CONNECTION);
+    private final String databaseName = "UserDATA";
+    private final String collectionName = "registration";
+    private final MongoCollection<Document> USER_DATA = mongoClient.getDatabase(databaseName).getCollection(collectionName);
 
-    public void user_register(ActionEvent actionEvent) throws IOException {
+    public void user_registration(ActionEvent actionEvent) throws IOException {
         Stage stage2 = new Stage();
         Parent parent = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/register.fxml")));
         stage2.setScene(new Scene(parent));
         stage2.show();
     }
 
-    public void signInButton(ActionEvent actionEvent) throws IOException {
-        boolean correct = false;
-        for (Document document : userData) {
-
-            if (userTextField.getText().equals(document.getString("username"))) {
-                correct = isCorrect(correct, document);
-
-            } else if (userTextField.getText().equals(document.getString("email"))) {
-                correct = isCorrect(correct, document);
+    public void signIn(ActionEvent actionEvent) {
+        Task<Boolean> authTask = new Task<>() {
+            @Override
+            protected Boolean call() throws Exception {
+                String userOrEmail = userTextField.getText();
+                String password = passwordTextField.getText();
+                return authenticateUser(userOrEmail, password);
             }
-            if (!correct) {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.show();
+        };
+
+        authTask.setOnSucceeded(event -> {
+            if (authTask.getValue()) {
+                showMainPlayerUI();
+            } else {
+                showAlert("Invalid username or password", Alert.AlertType.WARNING);
             }
-        }
+        });
+
+        authTask.setOnFailed(event -> {
+            showAlert("Authentication failed", Alert.AlertType.ERROR);
+        });
+
+        new Thread(authTask).start();
     }
 
-    private boolean isCorrect(boolean correct, Document document) throws IOException {
-        if (passwordTextField.getText().equals(document.getString("password"))) {
+    private boolean authenticateUser(String userOrEmail, String password) {
+        Document userDocument = USER_DATA.find(Filters.or(Filters.eq("username", userOrEmail), Filters.eq("email", userOrEmail))).first();
+        return userDocument != null && password.equals(userDocument.getString("password"));
+    }
+
+    private void showMainPlayerUI() {
+        try {
             Stage stage3 = new Stage();
             Parent parent = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/MainPlayerUI.fxml")));
             stage3.setScene(new Scene(parent));
@@ -75,46 +89,54 @@ public class LoginRegistration {
             stage3.setMaxWidth(1200);
             stage3.setMaxHeight(350);
             stage3.show();
-            correct = true;
             Main.stage1.close();
-        }
-        return correct;
-    }
-
-
-    public void submit(ActionEvent actionEvent) throws IOException {
-        boolean bool1 = true, bool2 = true;
-        for (Document document : userData) {
-            if (document.getString("username") != null) {
-
-                if (document.getString("username").equals(fullName.getText())) {
-                    Alert alert1 = new Alert(Alert.AlertType.WARNING);
-                    bool1 = false;
-                    alert1.show();
-                    break;
-                }
-            }
-            for (Document document1 : userData) {
-                if (document1.getString("email") != null) {
-
-                    if (document1.getString("email").equals(fullName.getText())) {
-                        Alert alert2 = new Alert(Alert.AlertType.WARNING);
-                        bool2 = false;
-                        alert2.show();
-                        break;
-                    }
-                }
-            }
-        }
-        if (bool1 && bool2) {
-            Document ADD_SIGN_UP_DATA = new Document("username", fullName.getText()).append("email", signUpEmail.getText()).
-                    append("password", Registration_Password.getText());
-            USER_DATA.insertOne(ADD_SIGN_UP_DATA);
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.show();
-
+        } catch (IOException e) {
+            showAlert("Failed to load the main player UI", Alert.AlertType.ERROR);
         }
     }
 
+    public void signUp(ActionEvent actionEvent) {
+        Task<Void> registerTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                String username = fullName.getText();
+                String email = signUpEmail.getText();
+                String password = Registration_Password.getText();
+
+                if (isUsernameTaken(username) || isEmailTaken(email)) {
+                    showAlert("Username or email already taken", Alert.AlertType.WARNING);
+                    return null;
+                }
+
+                Document newUser = new Document("username", username).append("email", email).append("password", password);
+
+                USER_DATA.insertOne(newUser);
+                return null;
+            }
+        };
+
+        registerTask.setOnSucceeded(event -> {
+            showAlert("Registration successful", Alert.AlertType.INFORMATION);
+        });
+
+        registerTask.setOnFailed(event -> {
+            showAlert("Registration failed", Alert.AlertType.ERROR);
+        });
+
+        new Thread(registerTask).start();
+    }
+
+    private boolean isUsernameTaken(String username) {
+        return USER_DATA.countDocuments(Filters.eq("username", username)) > 0;
+    }
+
+    private boolean isEmailTaken(String email) {
+        return USER_DATA.countDocuments(Filters.eq("email", email)) > 0;
+    }
+
+    private void showAlert(String message, Alert.AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 }
-

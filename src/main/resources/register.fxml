@@ -41,7 +41,7 @@
             <Font size="15.0" />
          </font>
       </Label>
-      <Button fx:id="submitButton" defaultButton="true" layoutX="379.0" layoutY="333.0" onAction="#submit" prefHeight="40" prefWidth="100" style="-fx-background-color: cyan;" text="Submit" />
+      <Button fx:id="submitButton" defaultButton="true" layoutX="379.0" layoutY="333.0" onAction="#signUp" prefHeight="40" prefWidth="100" style="-fx-background-color: cyan;" text="Submit" />
       <AnchorPane prefHeight="400.0" prefWidth="207.0">
          <children>
             <ImageView fitHeight="129.0" fitWidth="213.0" layoutY="129.0" pickOnBounds="true">
